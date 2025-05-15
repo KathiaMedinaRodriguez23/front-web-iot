@@ -25,3 +25,4 @@ dist-ssr
 
 deploy.bat
 change_user.sh
+.env
