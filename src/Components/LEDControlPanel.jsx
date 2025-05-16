@@ -95,23 +95,39 @@ export default function LEDControlPanel() {
   const startSequence = () => {
     turnAllOff();
     setEffect('sequence');
-    sendCommand("/sequence");
+
+    // Envía comandos individuales para cada LED
     leds.forEach((led, idx) => {
       setTimeout(() => {
         setLeds(prev => {
           const updated = prev.map(l =>
             l.id === led.id ? { ...l, on: true } : l
           );
-          writeToDB(updated);
+          writeToDB(updated); // Actualiza Firebase
+          sendCommand(`/led${led.id}/on`); // Llama a ngrok
           return updated;
         });
+
+        // Apaga el LED después de un breve periodo (opcional)
+        setTimeout(() => {
+          setLeds(prev => {
+            const updated = prev.map(l =>
+              l.id === led.id ? { ...l, on: false } : l
+            );
+            writeToDB(updated);
+            sendCommand(`/led${led.id}/off`);
+            return updated;
+          });
+        }, 1000); // Duración del LED encendido
+
+        // Finaliza la secuencia
         if (idx === leds.length - 1) {
           setTimeout(() => {
             turnAllOff();
             setEffect(null);
           }, 500);
         }
-      }, idx * 5000);
+      }, idx * 5000); // Intervalo entre pasos (5 segundos)
     });
   };
 
