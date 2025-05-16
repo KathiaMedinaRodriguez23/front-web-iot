@@ -108,18 +108,6 @@ export default function LEDControlPanel() {
           return updated;
         });
 
-        // Apaga el LED después de un breve periodo (opcional)
-        setTimeout(() => {
-          setLeds(prev => {
-            const updated = prev.map(l =>
-              l.id === led.id ? { ...l, on: false } : l
-            );
-            writeToDB(updated);
-            sendCommand(`/led${led.id}/off`);
-            return updated;
-          });
-        }, 1000); // Duración del LED encendido
-
         // Finaliza la secuencia
         if (idx === leds.length - 1) {
           setTimeout(() => {
@@ -127,7 +115,7 @@ export default function LEDControlPanel() {
             setEffect(null);
           }, 500);
         }
-      }, idx * 5000); // Intervalo entre pasos (5 segundos)
+      }, idx * 3000); // Intervalo entre pasos (5 segundos)
     });
   };
 
