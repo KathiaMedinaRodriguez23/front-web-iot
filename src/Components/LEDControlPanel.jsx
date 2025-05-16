@@ -119,23 +119,6 @@ export default function LEDControlPanel() {
     });
   };
 
-  // Efecto aleatorio
-  // const randomEffect = () => {
-  //   setEffect('random');
-  //   const interval = setInterval(() => {
-  //     setLeds(prev => {
-  //       const updated = prev.map(l => ({ ...l, on: Math.random() > 0.5 }));
-  //       writeToDB(updated);
-  //       return updated;
-  //     });
-  //   }, 200);
-  //   setTimeout(() => {
-  //     clearInterval(interval);
-  //     setEffect(null);
-  //     turnAllOff();
-  //   }, 3000);
-  // };
-
   const sendCommand = async (endpoint) => {
     try {
       await fetch(`${NGROK_URL}${endpoint}`, { method: "POST" });
@@ -229,14 +212,6 @@ export default function LEDControlPanel() {
           }}>
             Secuencia
           </button>
-          {/*<button onClick={randomEffect} style={{*/}
-          {/*  fontWeight: 700, padding: '0.75rem 1.5rem', borderRadius: '0.375rem',*/}
-          {/*  backgroundColor: '#8b5cf6', color: 'white', border: 'none', cursor: 'pointer',*/}
-          {/*  transition: 'all 0.2s',*/}
-          {/*  animation: effect === 'random' ? 'pulse-strong 1.5s infinite' : 'none'*/}
-          {/*}}>*/}
-          {/*  Aleatorio*/}
-          {/*</button>*/}
         </div>
       </div>
 
