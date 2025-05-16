@@ -14,10 +14,12 @@ const colorMap = {
   3: '#2563eb', // Azul
   4: '#efda6e', // Amarillo
   5: '#7c3aed',  // Morado
-  6: '#f97316', // Naranja
 };
 
 export default function LEDControlPanel() {
+
+  const NGROK_URL = "https://4e4f-132-184-55-140.ngrok-free.app";
+
   // Inyectar keyframes al <head>
   useEffect(() => {
     const styleTag = document.createElement('style');
@@ -60,6 +62,7 @@ export default function LEDControlPanel() {
         l.id === id ? { ...l, on: !l.on } : l
       );
       writeToDB(updated);
+      sendCommand(`/led${id}/${updated.find(l => l.id === id).on ? "on" : "off"}`);
       return updated;
     });
   };
@@ -68,7 +71,8 @@ export default function LEDControlPanel() {
   const turnAllOn = () => {
     setLeds(prev => {
       const updated = prev.map(l => ({ ...l, on: true }));
-      writeToDB(updated);
+      writeToDB(updated); // ✅ Actualiza Firebase
+      sendCommand("/all/on"); // ✅ Llama a ngrok
       return updated;
     });
     setEffect('all-on');
@@ -79,7 +83,8 @@ export default function LEDControlPanel() {
   const turnAllOff = () => {
     setLeds(prev => {
       const updated = prev.map(l => ({ ...l, on: false }));
-      writeToDB(updated);
+      writeToDB(updated); // ✅ Actualiza Firebase
+      sendCommand("/all/off"); // ✅ Llama a ngrok
       return updated;
     });
     setEffect('all-off');
@@ -90,6 +95,7 @@ export default function LEDControlPanel() {
   const startSequence = () => {
     turnAllOff();
     setEffect('sequence');
+    sendCommand("/sequence");
     leds.forEach((led, idx) => {
       setTimeout(() => {
         setLeds(prev => {
@@ -110,20 +116,28 @@ export default function LEDControlPanel() {
   };
 
   // Efecto aleatorio
-  const randomEffect = () => {
-    setEffect('random');
-    const interval = setInterval(() => {
-      setLeds(prev => {
-        const updated = prev.map(l => ({ ...l, on: Math.random() > 0.5 }));
-        writeToDB(updated);
-        return updated;
-      });
-    }, 200);
-    setTimeout(() => {
-      clearInterval(interval);
-      setEffect(null);
-      turnAllOff();
-    }, 3000);
+  // const randomEffect = () => {
+  //   setEffect('random');
+  //   const interval = setInterval(() => {
+  //     setLeds(prev => {
+  //       const updated = prev.map(l => ({ ...l, on: Math.random() > 0.5 }));
+  //       writeToDB(updated);
+  //       return updated;
+  //     });
+  //   }, 200);
+  //   setTimeout(() => {
+  //     clearInterval(interval);
+  //     setEffect(null);
+  //     turnAllOff();
+  //   }, 3000);
+  // };
+
+  const sendCommand = async (endpoint) => {
+    try {
+      await fetch(`${NGROK_URL}${endpoint}`, { method: "POST" });
+    } catch (error) {
+      console.error("Error al enviar el comando:", error);
+    }
   };
 
   return (
@@ -211,14 +225,14 @@ export default function LEDControlPanel() {
           }}>
             Secuencia
           </button>
-          <button onClick={randomEffect} style={{
-            fontWeight: 700, padding: '0.75rem 1.5rem', borderRadius: '0.375rem',
-            backgroundColor: '#8b5cf6', color: 'white', border: 'none', cursor: 'pointer',
-            transition: 'all 0.2s',
-            animation: effect === 'random' ? 'pulse-strong 1.5s infinite' : 'none'
-          }}>
-            Aleatorio
-          </button>
+          {/*<button onClick={randomEffect} style={{*/}
+          {/*  fontWeight: 700, padding: '0.75rem 1.5rem', borderRadius: '0.375rem',*/}
+          {/*  backgroundColor: '#8b5cf6', color: 'white', border: 'none', cursor: 'pointer',*/}
+          {/*  transition: 'all 0.2s',*/}
+          {/*  animation: effect === 'random' ? 'pulse-strong 1.5s infinite' : 'none'*/}
+          {/*}}>*/}
+          {/*  Aleatorio*/}
+          {/*</button>*/}
         </div>
       </div>
 
